@@ -24,10 +24,10 @@
 
       const mobileUserAgent = navigator.userAgentData?.mobile === true ||
         /Android|iPhone|iPod|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent);
-      const compactTouchScreen = navigator.maxTouchPoints > 0 &&
-        Math.min(window.screen.width, window.screen.height) <= 600 &&
-        window.matchMedia('(pointer: coarse)').matches;
-      if (mobileUserAgent || compactTouchScreen) {
+      const touchOnlyDevice = navigator.maxTouchPoints > 0 &&
+        window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      const belowDesktopCanvas = window.matchMedia('(max-width: 1023px)').matches;
+      if (mobileUserAgent || touchOnlyDevice || belowDesktopCanvas) {
         document.documentElement.classList.add('mobile-experience-blocked');
       }
     })();
@@ -9291,6 +9291,34 @@
 
     @keyframes mobileBorderTravel {
       to { --mobile-border-angle: 1turn; }
+    }
+
+    /* CSS failsafe: never expose the Planner below its desktop canvas size. */
+    @media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+      body {
+        display: block !important;
+        min-height: 100vh;
+        min-height: 100svh;
+        overflow: hidden !important;
+        background:
+          radial-gradient(circle at 78% 12%, rgba(91, 103, 230, 0.13), transparent 42%),
+          radial-gradient(circle at 12% 90%, rgba(66, 77, 180, 0.08), transparent 44%),
+          linear-gradient(180deg, #131419 0%, #0f1014 100%) !important;
+      }
+
+      body > :not(.mobile-device-notice) { display: none !important; }
+
+      body > .mobile-device-notice {
+        position: fixed;
+        z-index: 20000;
+        inset: 0;
+        display: grid !important;
+        place-items: center;
+        min-height: 100vh;
+        min-height: 100svh;
+        padding: 22px;
+        overflow: hidden;
+      }
     }
 
     /* Portfolio preview notice for private / unfinished areas */
